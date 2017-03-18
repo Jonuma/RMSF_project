@@ -6,3 +6,4 @@ Escrever aqui ideias chave, ou tópicos para lembrar coisas:
 
 Datasheets e afins:
 - Sensor de Humidade : https://www.dfrobot.com/wiki/index.php/Moisture_Sensor_(SKU:SEN0114)
+- Sensor de Temperatura: http://playground.arduino.cc/Main/DHT11Lib
