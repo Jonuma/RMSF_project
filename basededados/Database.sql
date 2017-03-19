@@ -24,7 +24,7 @@ begin
 	
 		delete from measurements as m
 		where hour(new.minutes) = hour(m.minutes) and minute(new.minutes) = minute(m.minutes)
-		limit 1; --vi que "limit in" significa o numero que esta em "int" e o numero de linhas que ele apaga devido ao "limit"
+		limit 1; --vi que "limit [int]" significa o numero que esta em "int" e o numero de linhas que ele apaga devido ao "limit"
 		
 		insert into measurements values(new.minutes, new.temperature, new.light, new.moisture);
 	
