@@ -5,6 +5,7 @@ Escrever aqui ideias chave, ou tópicos para lembrar coisas:
 - Fazer graficos do historial de humidade, temperatura e luminosidade para mostrar na app ao user
 
 Datasheets e afins:
+- Arduino detalhes: https://www.arduino.cc/en/reference/board
 - Sensor de Humidade : https://www.dfrobot.com/wiki/index.php/Moisture_Sensor_(SKU:SEN0114)
 - Sensor de Temperatura: http://playground.arduino.cc/Main/DHT11Lib
 - Módulo WiFi: http://blog.filipeflop.com/wireless/esp8266-arduino-tutorial.html
