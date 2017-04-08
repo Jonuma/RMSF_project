@@ -1,4 +1,5 @@
 #include <SparkFunTSL2561.h>
+#include <Wire.h> //communication via I2C
 #include <ESP8266.h>
 #include <doxygen.h>
 #include <dht11.h>
@@ -8,6 +9,10 @@
   # 0  ~300     dry soil
   # 300~700     humid soil
   # 700~950     in water        */
+
+  /*      Light Sensor     
+  # Default integration: 402ms
+  # Default gain:        low (1X)   */
   
 /* WiFi macros*/
 #define SSID        "NOME_DA_SUA_REDE_WIFI"
@@ -17,7 +22,14 @@
 #define RST 5
 #define GPIO0 6
 
+//WiFi object
 ESP8266 wifi(Serial);
+//LightSensor object
+SFE_TSL2561 light;
+
+boolean gain;     // Gain setting, 0 = X1, 1 = X16;
+unsigned char time; // Integration time, 0 = 13.7ms, 1 = 101m, 2 = 402ms, 3 = manual integration (manualStart/manualStop)
+unsigned int ms;  // Integration ("shutter") time in milliseconds
 
 void setup() {
   // Comunicates with pc and WIFi module at 9600 bit/s
@@ -26,7 +38,7 @@ void setup() {
   while(millis() < 1000);
 
   pinMode(TEMP_PIN, INPUT);
-  /*
+  
   pinMode(CH_PD,OUTPUT);
   pinMode(RST,OUTPUT);
   pinMode(GPIO0,OUTPUT);
@@ -51,43 +63,85 @@ void setup() {
   }else{
       Serial.println("Falha na conexao AP.");
   }
-  */
+
+  light.begin();
+  gain = 0;
+  time = 2;
+  light.setTiming(gain,time,ms); //changes the parameters
+  //ms is setted with the integration time
+  light.setPowerUp();
 }
 
 void loop() {
- //Hum sensor
+//Humidity sensor
   int hum_read = 0;
 
   hum_read = analogRead(HUM_PIN);
   delay(100);
 
-// Temp sensor
+// Temperature sensor
   dht11 DHT11;
   int chk = DHT11.read(TEMP_PIN);
   float temp_read = 0;
 
-  switch (chk)
-  {
+  switch (chk){
     case DHTLIB_OK: 
       Serial.println("OK");
-      temp_read = DHT11.temperature; 
-      break;
+      temp_read = DHT11.temperature; break;
     case DHTLIB_ERROR_CHECKSUM: 
-      Serial.println("Checksum error"); 
-      break;
+      Serial.println("Checksum error"); break;
     case DHTLIB_ERROR_TIMEOUT: 
-      Serial.println("Time out error"); 
-      break;
+      Serial.println("Time out error"); break;
     default: 
       Serial.println("Unknown error"); 
-      break;
   }
 
+// Luminosity sensor
+  delay(ms); // delay during integration time
+
+  unsigned int data0, data1;
+  boolean check_light = light.getData(data0,data1);
+  
+// Printing Results
   Serial.print("Temperature (°C): ");
   Serial.println((float)DHT11.temperature, 1);
   Serial.print("Humidity: ");
   Serial.println(hum_read);
+  if (check_light){
+    double lux;    // Resulting lux value
+    // Perform lux calculation: (returns: 1 - if successfull, 0 - if infrared/visible light sensor was saturated
+    boolean good = light.getLux(gain,ms,data0,data1,lux);
+
+    Serial.print("Luminosity (lux): ");
+    Serial.print(lux);
+    if (good) Serial.println(" (good)"); else Serial.println(" (BAD)");
+  }else{
+    // getData() returned false because of an I2C error
+    byte error = light.getError();
+    printLightError(error);
+  }
 
   delay(2000);
   
+}
+
+void printLightError(byte error){
+  Serial.print("I2C error: ");
+  Serial.print(error,DEC);
+  Serial.print(", ");
+  
+  switch(error){
+    case 0:
+      Serial.println("success");break;
+    case 1:
+      Serial.println("data too long for transmit buffer");break;
+    case 2:
+      Serial.println("received NACK on address (disconnected?)");break;
+    case 3:
+      Serial.println("received NACK on data");break;
+    case 4:
+      Serial.println("other error");break;
+    default:
+      Serial.println("unknown error");
+  }
 }
