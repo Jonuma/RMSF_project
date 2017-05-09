@@ -12,5 +12,6 @@ Datasheets e afins:
 - Sensor de Temperatura: http://playground.arduino.cc/Main/DHT11Lib
 - Módulo WiFi: https://www.sparkfun.com/products/13678
                https://www.embarcados.com.br/esp8266-com-arduino/
+               https://room-15.github.io/blog/2015/03/26/esp8266-at-command-reference/#AT+CIPSTAMAC
 - Sensor de Luminosidade: https://learn.sparkfun.com/tutorials/tsl2561-luminosity-sensor-hookup-guide
 - Bomba de Água: http://www.botnroll.com/en/dc-motors-actuators/970-6v-mini-water-pump.html?search_query=MOT02029&results=1
