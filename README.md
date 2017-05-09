@@ -11,6 +11,7 @@ Datasheets e afins:
 - Sensor de Humidade : https://www.dfrobot.com/wiki/index.php/Moisture_Sensor_(SKU:SEN0114)
 - Sensor de Temperatura: http://playground.arduino.cc/Main/DHT11Lib
 - Módulo WiFi: https://www.embarcados.com.br/esp8266-com-arduino/
+                https://github.com/itead/ITEADLIB_Arduino_WeeESP8266
                https://www.sparkfun.com/products/13678
                https://room-15.github.io/blog/2015/03/26/esp8266-at-command-reference/#AT+CIPSTAMAC
 - Sensor de Luminosidade: https://learn.sparkfun.com/tutorials/tsl2561-luminosity-sensor-hookup-guide
