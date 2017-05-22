@@ -16,3 +16,6 @@ Datasheets e afins:
                https://room-15.github.io/blog/2015/03/26/esp8266-at-command-reference/#AT+CIPSTAMAC
 - Sensor de Luminosidade: https://learn.sparkfun.com/tutorials/tsl2561-luminosity-sensor-hookup-guide
 - Bomba de Água: http://www.botnroll.com/en/dc-motors-actuators/970-6v-mini-water-pump.html?search_query=MOT02029&results=1
+
+Android:
+- https://developer.android.com/reference/android/os/AsyncTask.html
