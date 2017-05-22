@@ -18,4 +18,4 @@ Datasheets e afins:
 - Bomba de Água: http://www.botnroll.com/en/dc-motors-actuators/970-6v-mini-water-pump.html?search_query=MOT02029&results=1
 
 Android:
-- https://developer.android.com/reference/android/os/AsyncTask.html
+- AsyncTask: https://developer.android.com/reference/android/os/AsyncTask.html
