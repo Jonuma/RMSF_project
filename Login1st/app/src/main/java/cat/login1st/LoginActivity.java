@@ -59,7 +59,7 @@ public class LoginActivity extends AppCompatActivity {
                         URL url;
 
                         try {
-                            url = new URL("http://web.tecnico.ulisboa.pt/ist178094/RMSF/loginUser.php?usern=" + user +
+                            url = new URL("http://web.tecnico.ulisboa.pt/ist178094/RMSF/loginUser.php?email=" + user +
                                     "&pass=" + password);
                             new loginCheck().execute(url);
                         } catch (MalformedURLException e) {
