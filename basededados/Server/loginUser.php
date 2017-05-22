@@ -32,6 +32,7 @@
 			
 			if( ($result->rowcount())!=0 ){
 				//$response[0]=1;
+				echo("<p></p>");
 				$response["error"] = false;
 				$response["message"] = "Logged in successfully!";
 			}else{
