@@ -9,9 +9,9 @@ create table measurements(
 	primary key(minutes)); 
 
 create table users(
-	username varchar(255),
+	email varchar(255),
 	password varchar(255),
-	primary key(username));
+	primary key(email));
 	
 	
 insert into measurements values('2017-03-18 21:25:00', 23, 110, 370);

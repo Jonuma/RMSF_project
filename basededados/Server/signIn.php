@@ -26,7 +26,7 @@
 			$usern = htmlentities($_GET['usern'], ENT_QUOTES);
 			$pass = htmlentities($_GET['pass'], ENT_QUOTES);
 			
-			$result = $connection->prepare("Select username from users where username=:usern");
+			$result = $connection->prepare("Select email from users where email=:usern");
 			$result->bindParam(':usern', $usern);
 			$result->execute();
 			

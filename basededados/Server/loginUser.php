@@ -26,18 +26,18 @@
 			$email = htmlentities($_GET['email'], ENT_QUOTES);
 			$pass = htmlentities($_GET['pass'], ENT_QUOTES);
 			
-			$result = $connection->prepare("Select username from users where username=:email");
+			$result = $connection->prepare("Select email from users where email=:email");
 			$result->bindParam(':email', $email);
 			$result->execute();
 			
 			if( ($result->rowcount())!=0 ){
-				$response[0]=1;
-				//$response["error"] = false;
-				//$response["message"] = "Logged in successfully!";
+				//$response[0]=1;
+				$response["error"] = false;
+				$response["message"] = "Logged in successfully!";
 			}else{
 				$response[0]=0;
-				//$response["error"] = true;
-				//$response["message"] = "Failed to login!";
+				$response["error"] = true;
+				$response["message"] = "Failed to login!";
 			}
 			
 			
