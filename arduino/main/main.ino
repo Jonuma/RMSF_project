@@ -1,10 +1,11 @@
 #include <SparkFunTSL2561.h>
 #include <Wire.h> //communication via I2C
 #include <ESP8266.h>
+#include <SoftwareSerial.h>
 #include <doxygen.h>
 #include <dht11.h>
 #define HUM_PIN A0
-#define TEMP_PIN 3 //digital input
+#define TEMP_PIN 7 //digital input
   /*  Humidity sensor:
   # 0  ~300     dry soil
   # 300~700     humid soil
@@ -21,11 +22,19 @@
 #define CH_PD 4
 #define RST 5
 #define GPIO0 6
+/* Light Sensor pins:
+                     SDA    SCL
+Uno, Redboard, Pro    A4     A5
+*/
 
+
+SoftwareSerial mySerial(3, 2); /* RX:D3, TX:D2 */
 //WiFi object
-ESP8266 wifi(Serial);
+ESP8266 wifi(mySerial);
 //LightSensor object
 SFE_TSL2561 light;
+//Temperature object
+dht11 DHT11;
 
 boolean gain;     // Gain setting, 0 = X1, 1 = X16;
 unsigned char time; // Integration time, 0 = 13.7ms, 1 = 101m, 2 = 402ms, 3 = manual integration (manualStart/manualStop)
@@ -34,6 +43,7 @@ unsigned int ms;  // Integration ("shutter") time in milliseconds
 void setup() {
   // Comunicates with pc and WIFi module at 9600 bit/s
   Serial.begin(9600);
+  mySerial.begin(9600);
   //waits one second after power up
   while(millis() < 1000);
 
@@ -45,7 +55,7 @@ void setup() {
   digitalWrite(CH_PD,HIGH);
   digitalWrite(RST,HIGH); 
   digitalWrite(GPIO0,HIGH);
-
+/*
   if(wifi.kick())
     Serial.println("wifi module OK!");
   else
@@ -63,7 +73,7 @@ void setup() {
   }else{
       Serial.println("Falha na conexao AP.");
   }
-
+*/
   light.begin();
   gain = 0;
   time = 2;
@@ -74,15 +84,14 @@ void setup() {
 
 void loop() {
 //Humidity sensor
-  int hum_read = 0;
+  int hum_read = -1;
 
   hum_read = analogRead(HUM_PIN);
   delay(100);
 
 // Temperature sensor
-  dht11 DHT11;
   int chk = DHT11.read(TEMP_PIN);
-  float temp_read = 0;
+  float temp_read = -1;
 
   switch (chk){
     case DHTLIB_OK: 
@@ -101,25 +110,19 @@ void loop() {
 
   unsigned int data0, data1;
   boolean check_light = light.getData(data0,data1);
-  
-// Printing Results
-  Serial.print("Temperature (°C): ");
-  Serial.println((float)DHT11.temperature, 1);
-  Serial.print("Humidity: ");
-  Serial.println(hum_read);
+  double lux=-1;    // Resulting lux value
+  boolean good; // To check if lux measure is saturated
   if (check_light){
-    double lux;    // Resulting lux value
     // Perform lux calculation: (returns: 1 - if successfull, 0 - if infrared/visible light sensor was saturated
-    boolean good = light.getLux(gain,ms,data0,data1,lux);
-
-    Serial.print("Luminosity (lux): ");
-    Serial.print(lux);
-    if (good) Serial.println(" (good)"); else Serial.println(" (BAD)");
-  }else{
-    // getData() returned false because of an I2C error
-    byte error = light.getError();
-    printLightError(error);
+    good = light.getLux(gain,ms,data0,data1,lux);
   }
+
+  /*boolean check_light = true;
+  double lux=-1;    // Resulting lux value
+  boolean good; // To check if lux measure is saturated*/
+// Printing Results
+  printResults( temp_read, hum_read, check_light, lux, good);
+  
 
   delay(2000);
   
@@ -145,3 +148,20 @@ void printLightError(byte error){
       Serial.println("unknown error");
   }
 }
+
+void printResults(float temp_read, int hum_read, boolean check_light, double lux, boolean good){
+  Serial.print("Temperature (°C): ");
+  Serial.println((float)temp_read, 1);
+  Serial.print("Humidity: ");
+  Serial.println(hum_read);
+  if (check_light){
+    Serial.print("Luminosity (lux): ");
+    Serial.print(lux);
+    if (good) Serial.println(" (good)"); else Serial.println(" (BAD)");
+  }else{
+    // getData() returned false because of an I2C error
+    byte error = light.getError();
+    printLightError(error);
+  }
+}
+
