@@ -1,49 +1,31 @@
-#include <WiFiClient.h>
-#include <WiFi.h>
-#include <WiFiServer.h>
-#include <WiFiUdp.h>
-
-#include <ESP8266.h>
-
-
-void setup() {
-  String clientMac = "";
-  unsigned char mac[6];
-  WiFi.macAddress(mac);
-  clientMac += macToStr(mac);
-
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-
-}
-
-String macToStr(const uint8_t* mac){
-  String result;
-  for (int i = 0; i < 6; ++i) {
-  result += String(mac[i], 16);
-  if (i < 5)
-  result += ':';
-  }
-  return result;
-}
-
 /*********** OOOOUUUUUUUUU ***************/
+#include <SoftwareSerial.h>
 
+//RX pino 3, TX pino 2
+SoftwareSerial esp8266(3, 2);
 
-/*
-//RX pino 2, TX pino 3
-SoftwareSerial esp8266(2, 3);
- 
+#define SSID        "falafel_p9"
+#define PASSWORD    "test12345"
 #define DEBUG true
+#define CH_PD 4
  
 void setup()
 {
+  /*pinMode(CH_PD, OUTPUT);
+  digitalWrite(CH_PD, HIGH);*/
   Serial.begin(9600);
   esp8266.begin(9600);
   //AT command to get the MAC address (station mode)
+  sendData("AT\r\n", 2000, DEBUG);
+  delay(200);
   sendData("AT+CIPSTAMAC?\r\n", 2000, DEBUG);
+  delay(200);
+  sendData("AT+CWMODE=1\r\n", 2000, DEBUG);
+  delay(200);
+  String command = "AT+CWJAP=\""+String(SSID)+"\",\""+String(PASSWORD)+"\"\r\n";
+  sendData(command, 2000, DEBUG);
+  delay(200);
+  sendData("AT+CWJAP?\r\n", 2000, DEBUG);
   Serial.println("** Final **");
 }
  
@@ -70,4 +52,3 @@ String sendData(String command, const int timeout, boolean debug)
   }
   return response;
 }
- */
