@@ -5,6 +5,8 @@ Escrever aqui ideias chave, ou tópicos para lembrar coisas:
 - Fazer graficos do historial de humidade, temperatura e luminosidade para mostrar na app ao user
 - API de MySQL para server em C: https://www.cyberciti.biz/tips/linux-unix-connect-mysql-c-api-program.html
 - Android WifiManager examples: http://www.programcreek.com/java-api-examples/android.net.wifi.WifiManager
+Projetos passados:
+- https://github.com/bernardo5/RMSF
 
 Datasheets e afins:
 - Arduino detalhes: https://www.arduino.cc/en/reference/board
@@ -17,6 +19,9 @@ Datasheets e afins:
 - CD4050 : https://www.fairchildsemi.com/datasheets/CD/CD4049UBC.pdf
 - Sensor de Luminosidade: https://learn.sparkfun.com/tutorials/tsl2561-luminosity-sensor-hookup-guide
 - Bomba de Água: http://www.botnroll.com/en/dc-motors-actuators/970-6v-mini-water-pump.html?search_query=MOT02029&results=1
+
+- Get request: https://www.arduino.cc/en/Tutorial/WebClient
+- Post request : http://www.instructables.com/id/PART-1-Send-Arduino-data-to-the-Web-PHP-MySQL-D3js/
 
 Android:
 - AsyncTask: https://developer.android.com/reference/android/os/AsyncTask.html
