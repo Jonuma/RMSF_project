@@ -5,9 +5,7 @@ drop table if exists measurements;
 create table measurements(
 	minutes datetime, 
 	temperature integer,
-	light integer,  --  "the foot-candle, the lux, and the lumen are all units used to describe relative brightness or luminosity to the human eye. Radiometric
-					--measurements are used to describe the radiant energy of light, and common units
-					--include watts, calories, BTU’s, and joules"
+	light integer,  
 	moisture integer,
 	primary key(minutes));   
 
