@@ -5,6 +5,7 @@ Escrever aqui ideias chave, ou tópicos para lembrar coisas:
 - Fazer graficos do historial de humidade, temperatura e luminosidade para mostrar na app ao user
 - API de MySQL para server em C: https://www.cyberciti.biz/tips/linux-unix-connect-mysql-c-api-program.html
 - Android WifiManager examples: http://www.programcreek.com/java-api-examples/android.net.wifi.WifiManager
+
 Projetos passados:
 - https://github.com/bernardo5/RMSF
 
