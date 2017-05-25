@@ -27,63 +27,24 @@
 			//$temperature = htmlentities($_GET['temperature'], ENT_QUOTES);
 			//$light = htmlentities($_GET['light'], ENT_QUOTES);
 			//$moisture = htmlentities($_GET['moisture'], ENT_QUOTES);
-			$minutes = $_GET['minutes'];
+			
+			$minutes = date("Y-m-d h:i:sa"); 
 			$temperature = $_GET['temperature'];
 			$light = $_GET['light'];
 			$moisture = $_GET['moisture'];
 			
-			$stmt = $connection->prepare("INSERT INTO measurements VALUES (:minutes, :temperature, :light, :moisture);");
+			$sql = "INSERT INTO measurements VALUES ('$minutes', '$temperature', '$light', '$moisture')";
+			$result = $connection->exec($sql);
+			
+		/*	Nao esta a funcionar com a prevencao de SQL injection 
+		
+			$stmt = $connection->prepare("INSERT INTO measurements VALUES (current timestamp, :temperature, :light, :moisture);");
 			$stmt->bindParam(':temperature', $temperature);
 			$stmt->bindParam(':light', $light);
 			$stmt->bindParam(':moisture', $moisture);			
 			$stmt->execute();
-
-			$connection=null;
-
-		/*
-			// array for JSON response
-			$response = array();
-
-			// check for required fields
-			if (isset($_POST['name']) && isset($_POST['price']) && isset($_POST['description'])) {
-
-			$name = $_POST['name'];
-			$price = $_POST['price'];
-			$description = $_POST['description'];
-
-			// include db connect class
-			require_once __DIR__ . '/db_connect.php';
-
-			// connecting to db
-			$db = new DB_CONNECT();
-
-			// mysql inserting a new row
-			$result = mysql_query("INSERT INTO products(name, price, description) VALUES('$name', '$price', '$description')");
-
-			// check if row inserted or not
-			if ($result) {
-			// successfully inserted into database
-			$response["success"] = 1;
-			$response["message"] = "Product successfully created.";
-
-			// echoing JSON response
-			echo json_encode($response);
-			} else {
-			// failed to insert row
-			$response["success"] = 0;
-			$response["message"] = "Oops! An error occurred.";
-
-			// echoing JSON response
-			echo json_encode($response);
-			}
-			} else {
-			// required field is missing
-			$response["success"] = 0;
-			$response["message"] = "Required field(s) is missing";
-
-			// echoing JSON response
-			echo json_encode($response);
 		*/
+			$connection=null;
 
 		?>
 	</body>
