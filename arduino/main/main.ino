@@ -16,8 +16,8 @@
   # Default gain:        low (1X)   */
   
 /* WiFi macros*/
-#define SSID        "Jonuma PLine Guest"
-#define PASSWORD    "JonumaGuest&112"
+#define SSID        "falafel_p9"
+#define PASSWORD    "test12345"
 //inputs
 #define CH_PD 4
 #define RST 5
@@ -57,6 +57,8 @@ void setup() {
   digitalWrite(RST,HIGH); 
   digitalWrite(GPIO0,HIGH);
 
+  delay(1000);
+  
   if(wifi.kick())
     Serial.println("wifi module OK!");
   else
@@ -69,13 +71,12 @@ void setup() {
   else
     Serial.println("Station ERROR");
 
-  if (wifi.joinAP(SSID, PASSWORD)){
-      Serial.println("Successful connection");
-      Serial.print("IP: ");
-      Serial.println(wifi.getLocalIP().c_str());    
-  }else{
-      Serial.println("Falha na conexao AP.");
+  while(!wifi.joinAP(SSID, PASSWORD)){
+      Serial.println("Falha na conexao AP.");       
   }
+  Serial.println("Successful connection");
+  Serial.print("IP: ");
+  Serial.println(wifi.getLocalIP().c_str()); 
 
   light.begin();
   gain = 0;
@@ -137,26 +138,25 @@ void loop() {
   Serial.println("Successful connection to server.");
 
   //Sending GET request to server
-  String data = String("minutes=")+"\"2017-04-27 22:00:00\""+"&temperature="+(int)temp_read+"&light="+(int)lux+"&moisture="+(int)hum_read;
+  String data = String("temperature=")+(int)temp_read+"&light="+(int)lux+"&moisture="+(int)hum_read;
+  Serial.println(data);
   const char data_c[data.length()];
   data.toCharArray(data_c, data.length());
-  String get = "GET /ist178799/server2.php?"+data+" HTTP/1.1\r\n";
-  const char get_c[get.length()];
-  get.toCharArray(get_c, get.length());
-  const char host[] = "Host: web.ist.utl.pt\r\n";
+  String get_message = "GET /ist178799/server2.php?"+data+" HTTP/1.1\r\n" + "Host: web.ist.utl.pt\r\n\r\n" ;
+  const char get_message_c[get_message.length()+6]; // +1 for each \r or \n
+  get_message.toCharArray(get_message_c, get_message.length()+6);
   
-  if(!wifi.send(get_c, sizeof(get_c)))
-    Serial.println("This shit is failing");
-  wifi.send(host, sizeof(host));
-  wifi.send("Connection: close\r\n\r\n", 25);
+  if(!wifi.send(get_message_c, sizeof(get_message_c)))
+    Serial.println("-------------This shit is failing1----------");
+  Serial.print(get_message_c);
   Serial.println("GET request sent.");
-  
-  /*while(!wifi.releaseTCP()){
+  delay(1000);
+  while(!wifi.releaseTCP()){
     delay(200);
     Serial.println("Error releasing."); 
-  }*/
+  }
   Serial.println("Connection released");
-
+  //TODO data na base de dados está no formato só até as 12 horas
   delay(60000); //Delays for a minute
 }
 

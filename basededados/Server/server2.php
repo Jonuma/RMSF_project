@@ -27,17 +27,21 @@
 			//$temperature = htmlentities($_GET['temperature'], ENT_QUOTES);
 			//$light = htmlentities($_GET['light'], ENT_QUOTES);
 			//$moisture = htmlentities($_GET['moisture'], ENT_QUOTES);
-			$minutes = $_GET['minutes'];
+			$minutes = date("Y-m-d h:i:sa"); 
 			$temperature = $_GET['temperature'];
 			$light = $_GET['light'];
 			$moisture = $_GET['moisture'];
 			
+			$sql = "INSERT INTO measurements VALUES ('$minutes', '$temperature', '$light', '$moisture')";
+			$result = $connection->exec($sql);
+
+			/*
 			$stmt = $connection->prepare("INSERT INTO measurements VALUES (:minutes, :temperature, :light, :moisture);");
 			$stmt->bindParam(':temperature', $temperature);
 			$stmt->bindParam(':light', $light);
 			$stmt->bindParam(':moisture', $moisture);			
 			$stmt->execute();
-
+			*/
 			$connection=null;
 
 		/*
