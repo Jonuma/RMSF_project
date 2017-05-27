@@ -7,6 +7,8 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -44,17 +46,25 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn = (Button) findViewById(R.id.loginBtn);
         signupLink = (TextView) findViewById(R.id.link_signup);
 
-       loginBtn.setOnClickListener(new View.OnClickListener() {
 
-            /** Called when the user clicks the Login button */
+        loginBtn.setOnClickListener(new View.OnClickListener() {
+
+            /**
+             * Called when the user clicks the Login button
+             */
             @Override
             public void onClick(View view) {
                 String user = email.getText().toString();
                 String password = pass.getText().toString();
 
-                if (  ( !user.equals("")) && ( !password.equals("")) )
-                {
-                    if ( user.length() > 4 ){
+                if ((!user.equals("")) && (!password.equals(""))) {
+
+                    if (password.length() < 5) {
+                        Toast.makeText(getApplicationContext(),
+                                "Password needs at least 5 characters!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    if (isValidEmail(user) == true) {
 
                         URL url;
 
@@ -66,27 +76,25 @@ public class LoginActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
 
-                    }
-                    else
-                    {
+                    } else {
                         Toast.makeText(getApplicationContext(),
-                                "Username should be minimum 5 characters", Toast.LENGTH_SHORT).show();
+                                "Enter a valid email address!", Toast.LENGTH_SHORT).show();
                     }
-                }
-                else
-                {
+                } else {
                     Toast.makeText(getApplicationContext(),
-                            "One or more fields are empty", Toast.LENGTH_SHORT).show();
+                            "One or more fields are empty!", Toast.LENGTH_SHORT).show();
                 }
             }
-           // login();
+            // login();
 
 
-         });
+        });
 
         signupLink.setOnClickListener(new View.OnClickListener() {
 
-            /** Called when the user clicks the Signup button */
+            /**
+             * Called when the user clicks the Signup button
+             */
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
@@ -110,6 +118,12 @@ public class LoginActivity extends AppCompatActivity {
                 InputStreamReader isw = new InputStreamReader(in);
 
                 int data = isw.read();
+
+               /* if ( (char) data == '0' ) {
+                    Toast.makeText(getApplicationContext(),
+                            "You need to signup first!", Toast.LENGTH_SHORT).show();
+                }*/
+
                 while (data != -1) {
                     char current = (char) data;
                     data = isw.read();
@@ -124,6 +138,10 @@ public class LoginActivity extends AppCompatActivity {
                 }
             return null;
         }
+        }
+
+        public final static boolean isValidEmail(CharSequence target) {
+            return !TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches();
         }
     }
 
