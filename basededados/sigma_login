@@ -1,0 +1,2 @@
+#!/bin/bash
+ssh sigma.tecnico.ulisboa.pt -l ist178799
