@@ -23,28 +23,29 @@
 			// array for JSON response
 			$response = array();
 			
-			$usern = htmlentities($_GET['usern'], ENT_QUOTES);
+			$email = htmlentities($_GET['email'], ENT_QUOTES);
 			$pass = htmlentities($_GET['pass'], ENT_QUOTES);
 			
-			$result = $connection->prepare("Select email from users where email=:usern");
-			$result->bindParam(':usern', $usern);
+			$result = $connection->prepare("Select email, password from users where email=:email and password=:pass");
+			$result->bindParam(':email', $email);
+			$result->bindParam(':pass', $pass);
 			$result->execute();
 			
 			if(($result->rowcount())==0){			
 			
-				$sql = "INSERT INTO users VALUES ('$usern', '$pass')";
+				$sql = "INSERT INTO users VALUES ('$email', '$pass')";
 				$result = $connection->exec($sql);
 			
-				//$result = $connection->prepare("Insert into users values(:usern, :pass);");
-				//$result->bindParam(':usern', $user);
+				//$result = $connection->prepare("Insert into users values(:email, :pass);");
+				//$result->bindParam(':email', $user);
 				//$result->bindParam(':pass', $pass);
 				//$result->execute();
 				
-				$response[0]=1;
+				$response['success']=1;
 				//$response["error"] = false;
 				//$response["message"] = "Signed in successfully!";
 			}else{
-				$response[0]=0;
+				$response['success']=0;
 				//$response["error"] = true;
 				//$response["message"] = "Failed to sign in!";
 			}
