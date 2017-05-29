@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -67,7 +66,7 @@ public class SignupActivity extends AppCompatActivity {
                         URL url;
 
                         try {
-                            url = new URL("http://web.tecnico.ulisboa.pt/ist178094/RMSF/signIn.php?usern=" + mail +
+                            url = new URL("http://web.tecnico.ulisboa.pt/ist178094/RMSF/signUp.php?email=" + mail +
                                     "&pass=" + passSet);
                             new signupCheck().execute(url);
                         } catch (MalformedURLException e) {
@@ -103,7 +102,7 @@ public class SignupActivity extends AppCompatActivity {
         });
     }
 
-    public class signupCheck extends AsyncTask<URL, String, String> {
+    public class signupCheck extends AsyncTask<URL, Integer, String> {
 
         @Override
         protected String doInBackground(URL... url) {
@@ -134,6 +133,6 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     public final static boolean isValidEmail(CharSequence target) {
-        return !TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches();
+        return Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
 }

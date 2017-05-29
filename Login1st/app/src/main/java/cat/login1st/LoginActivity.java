@@ -1,13 +1,8 @@
 package cat.login1st;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -15,16 +10,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
+import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -35,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText pass;
     Button loginBtn;
     TextView signupLink;
+    int res = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,8 +81,6 @@ public class LoginActivity extends AppCompatActivity {
                             "One or more fields are empty!", Toast.LENGTH_SHORT).show();
                 }
             }
-            // login();
-
 
         });
 
@@ -105,43 +99,75 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    public class loginCheck extends AsyncTask<URL, String, String> {
+    public class loginCheck extends AsyncTask<URL, Integer, String> {
 
         @Override
         protected String doInBackground(URL... url) {
             HttpURLConnection urlConnection = null;
 
+
             try {
                 urlConnection = (HttpURLConnection) url[0].openConnection();
                 urlConnection.connect();
                 InputStream in = urlConnection.getInputStream();
-                InputStreamReader isw = new InputStreamReader(in);
+                InputStreamReader isr = new InputStreamReader(in);
+                BufferedReader br = new BufferedReader(isr);
+                StringBuilder stringB = new StringBuilder();
 
-                int data = isw.read();
-
-               /* if ( (char) data == '0' ) {
-                    Toast.makeText(getApplicationContext(),
-                            "You need to signup first!", Toast.LENGTH_SHORT).show();
-                }*/
-
-                while (data != -1) {
-                    char current = (char) data;
-                    data = isw.read();
-                    System.out.print(current);
+                String s = null;
+                while((s = br.readLine()) != null) {
+                    stringB.append(s);
                 }
+
+                String r = new String();
+                Pattern ptrn = Pattern.compile("\\{(.*?)\\}");
+                Matcher matcher = ptrn.matcher(stringB.toString());
+                while(matcher.find()) {
+                    r += matcher.group(0);
+                }
+
+                JSONObject jsn = new JSONObject(r);
+                res = jsn.getInt("success");
+
+                System.out.print("\n\nresult " + res);
+
+
             } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    if (urlConnection != null) {
-                        urlConnection.disconnect();
-                    }
+                e.printStackTrace();
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
                 }
-            return null;
-        }
+            }
+        return null;
         }
 
-        public final static boolean isValidEmail(CharSequence target) {
-            return !TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches();
+       /* @Override
+        protected void onProgressUpdate(Integer... progress) {
+            setProgressPercent(progress[0]);
+        } */
+
+        @Override
+        protected void onPostExecute(String result){
+
+            super.onPostExecute(result);
+
+            if(res == 0){
+                Toast.makeText(getApplicationContext(),
+                        "You are not registered yet. Sign up first!", Toast.LENGTH_SHORT).show();
+            }else{
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+
         }
     }
+
+
+
+    public final static boolean isValidEmail(CharSequence target) {
+        return Patterns.EMAIL_ADDRESS.matcher(target).matches();
+    }
+}
 
