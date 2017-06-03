@@ -23,6 +23,7 @@ Datasheets e afins:
 - Bomba de Água: http://www.botnroll.com/en/dc-motors-actuators/970-6v-mini-water-pump.html?search_query=MOT02029&results=1
 http://www.instructables.com/id/Automatically-water-your-small-indoor-plant-using-/
 - Transistor basics: http://www.electronics-tutorials.ws/transistor/tran_2.html
+- TIP102 : http://www.onsemi.com/pub/Collateral/TIP100-D.PDF
 
 - Get request: https://www.arduino.cc/en/Tutorial/WebClient
 - Post request : http://www.instructables.com/id/PART-1-Send-Arduino-data-to-the-Web-PHP-MySQL-D3js/
