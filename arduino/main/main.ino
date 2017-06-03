@@ -22,6 +22,7 @@
 #define CH_PD 4
 #define RST 5
 #define GPIO0 6
+#define DEBUG true
 /* Light Sensor pins:
                      SDA    SCL
 Uno, Redboard, Pro    A4     A5
@@ -44,7 +45,7 @@ unsigned int ms;  // Integration ("shutter") time in milliseconds
 void setup() {
   // Comunicates with pc and WIFi module at 9600 bit/s
   Serial.begin(9600);
-  //mySerial.begin(9600);
+  mySerial.begin(9600);
   //waits one second after power up
   while(millis() < 1000);
 
@@ -127,37 +128,41 @@ void loop() {
 // Printing Results
   printResults( temp_read, hum_read, check_light, lux, good);
   
-  delay(2000);
+  delay(200);
 
-  //site: "https://web.ist.utl.pt/ist178094"
-
+  //Opens TCP session with server
   while(!wifi.createTCP("web.ist.utl.pt", 80)){
     delay(200);
     Serial.println("Error connecting."); 
-  }  
-  Serial.println("Successful connection to server.");
+  }
+  delay(200);  
+  Serial.println("Connected to server.");
 
-  //Sending GET request to server
+  //sets GET request
   String data = String("temperature=")+(int)temp_read+"&light="+(int)lux+"&moisture="+(int)hum_read;
-  Serial.println(data);
   const char data_c[data.length()];
   data.toCharArray(data_c, data.length());
-  String get_message = "GET /ist178799/server2.php?"+data+" HTTP/1.1\r\n" + "Host: web.ist.utl.pt\r\n\r\n" ;
-  const char get_message_c[get_message.length()+6]; // +1 for each \r or \n
-  get_message.toCharArray(get_message_c, get_message.length()+6);
+  String get_message = "GET /ist178799/server2.php?"+data+" HTTP/1.1\r\n" + "Host: web.ist.utl.pt\r\n" + "\r\n";
+  /*const char get_message_c[get_message.length()]; // +1 for each \r or \n
+  get_message.toCharArray(get_message_c, sizeof(get_message_c));
+  delay(200);*/
   
-  if(!wifi.send(get_message_c, sizeof(get_message_c)))
-    Serial.println("-------------This shit is failing1----------");
-  Serial.print(get_message_c);
-  Serial.println("GET request sent.");
-  delay(1000);
-  while(!wifi.releaseTCP()){
+  
+  /*if(!wifi.send(get_message_c, sizeof(get_message_c))){
     delay(200);
-    Serial.println("Error releasing."); 
-  }
-  Serial.println("Connection released");
+    Serial.println("-------------Bad Request----------");
+  }*/
+  //TODO checks se a data foi bem enviada
+  delay(500); //TODO can't close TCP connection
+  //Sends GET request to server
+  sendData("AT+CIPSEND="+String(get_message.length())+"\r\n", 2000, DEBUG, 100);
+  sendData(get_message, 5000, DEBUG, 5000);
+  //Closes TCP session
+  sendData("AT+CIPCLOSE\r\n", 5000, DEBUG, 100);
+  delay(500);
+  Serial.println("\nConnection released");
   //TODO data na base de dados está no formato só até as 12 horas
-  delay(60000); //Delays for a minute
+  delay(300000); //Delays for 5 minutes
 }
 
 void printLightError(byte error){
@@ -195,5 +200,29 @@ void printResults(float temp_read, int hum_read, boolean check_light, double lux
     byte error = light.getError();
     printLightError(error);
   }
+}
+
+
+String sendData(String command, const int timeout, boolean debug, const int interval)
+{
+  // Envio dos comandos AT para o modulo
+  String response = "";
+  mySerial.print(command);
+  delay(interval);
+  long int time = millis();
+  while ( (time + timeout) > millis())
+  {
+    while (mySerial.available())
+    {
+      // The esp has data so display its output to the serial window
+      char c = mySerial.read(); // read the next character.
+      response += c;
+    }
+  }
+  if (debug)
+  {
+    Serial.print(response);
+  }
+  return response;
 }
 
