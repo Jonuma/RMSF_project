@@ -32,36 +32,14 @@
 			$result->execute();
 			
 			if( ($result->rowcount())!=0 ){
-				$response['success']=1;
+				$response['success']=1; // Logged in successfully!
 				echo("<p></p>");
-				//$response["error"] = false;
-				//$response["message"] = "Logged in successfully!";
-			}else{
-				$response['success']=0;
-				//$response["error"] = true;
-				//$response["message"] = "Failed to login!";
-			}
-			
-			
-			
-		//	if(($result->rowcount())==0){			
-			
-		//		$sql = "INSERT INTO users VALUES ('$email', '$pass')";
-		//		$result = $connection->exec($sql);
-			
-				//$result = $connection->prepare("insert into users values(:email, :pass);");
-				//$result->bindParam(':email', $user);
-				//$result->bindParam(':pass', $pass);
-				//$result->execute();
 				
-		//		$response[0]=1;
-				//$response["error"] = false;
-				//$response["message"] = "Signed in successfully!";
-		//	}else{
-		//		$response[0]=0;
-				//$response["error"] = true;
-				//$response["message"] = "Failed to sign in!";
-		//	}
+			}else{
+				$response['success']=0; //Failed to login!
+				
+			}
+		
 			echo json_encode($response);
 
 			$connection=null;

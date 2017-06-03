@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Login1st</string>
+    <string name="name">MyGardener</string>
+    <string name="description">desc</string>
+    <string name="hint_email">E-mail</string>
+    <string name="hint_pass">Password</string>
+    <string name="loginBtn">LogIn</string>
+    <string name="signup_link">No account yet? Sign up here.</string>
+    <string name="person_name">Name</string>
+    <string name="define_pass">Create Password</string>
+    <string name="confirm_pass">Confirm Password</string>
+    <string name="login_link">Already have an account? Login.</string>
+    <string name="register">Signup</string>
+    <string name="configBtn">Apply</string>
+
+    <string-array name="configs">
+        <item>Dry</item>
+        <item>Normal</item>
+        <item>Moist</item>
+    </string-array>
+
+</resources>

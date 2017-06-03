@@ -33,7 +33,8 @@
 			
 			if(($result->rowcount())==0){			
 			
-				$sql = "INSERT INTO users VALUES ('$email', '$pass')";
+			
+				$sql = "INSERT INTO users VALUES ('$email', '$pass', '2')";
 				$result = $connection->exec($sql);
 			
 				//$result = $connection->prepare("Insert into users values(:email, :pass);");
@@ -41,13 +42,11 @@
 				//$result->bindParam(':pass', $pass);
 				//$result->execute();
 				
-				$response['success']=1;
-				//$response["error"] = false;
-				//$response["message"] = "Signed in successfully!";
+				$response['success']=1; //Signed in successfully!
+				
 			}else{
-				$response['success']=0;
-				//$response["error"] = true;
-				//$response["message"] = "Failed to sign in!";
+				$response['success']=0; //Failed to sign in!
+				
 			}
 			echo json_encode($response);
 
