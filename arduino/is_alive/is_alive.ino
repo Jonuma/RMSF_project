@@ -5,11 +5,12 @@ SoftwareSerial mySerial(3, 2); /* RX:D2, TX:D3 */
 void setup() {
 
   // Inicializa ambas as portas
-  Serial.begin(115200);
-  mySerial.begin(115200);
+  Serial.begin(9600);
+  mySerial.begin(9600);
 }
  
 void loop() {
+  
   // Ve se tem sinal na mySerial e manda para a Serial
   boolean bool1 = mySerial.available();
   /*Serial.print("mySerial: ");

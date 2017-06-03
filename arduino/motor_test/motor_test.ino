@@ -5,7 +5,7 @@ int waittime = 20; // how long to wait between watering, in seconds
 
 void setup()
 {
-  pinMode(motorPin, OUTPUT); // set A0 to an output so we can use it to turn on the transistor
+  pinMode(motorPin, OUTPUT); // set A1 to an output so we can use it to turn on the transistor
   pinMode(blinkPin, OUTPUT); // set pin 13 to an output so we can use it to turn on the LED
 }
 

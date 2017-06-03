@@ -18,6 +18,8 @@
 /* WiFi macros*/
 #define SSID        "falafel_p9"
 #define PASSWORD    "test12345"
+/*Base de dados*/
+#define user "78094"
 //inputs
 #define CH_PD 4
 #define RST 5
@@ -33,6 +35,7 @@ Uno, Redboard, Pro    A4     A5
 SoftwareSerial mySerial(3, 2); /* RX:D3, TX:D2 */
 //WiFi object
 ESP8266 wifi(mySerial, 9600);
+String mac = "";
 //LightSensor object
 SFE_TSL2561 light;
 //Temperature object
@@ -44,7 +47,7 @@ unsigned int ms;  // Integration ("shutter") time in milliseconds
 
 void setup() {
   // Comunicates with pc and WIFi module at 9600 bit/s
-  Serial.begin(9600);
+  Serial.begin(115200);
   mySerial.begin(9600);
   //waits one second after power up
   while(millis() < 1000);
@@ -71,13 +74,21 @@ void setup() {
     Serial.println("Station OK.");
   else
     Serial.println("Station ERROR");
-
+  
   while(!wifi.joinAP(SSID, PASSWORD)){
       Serial.println("Falha na conexao AP.");       
   }
   Serial.println("Successful connection");
-  Serial.print("IP: ");
-  Serial.println(wifi.getLocalIP().c_str()); 
+  //Prints IP and MAC of esp8266
+  String ip_mac = wifi.getLocalIP().c_str();
+  Serial.println(ip_mac);
+  //Gets MAC of esp8266
+  
+  int idx = find_text("MAC,", ip_mac);
+  for(int i = idx+5 ; i < idx+22 ; i++){
+    mac += ip_mac.charAt(i); 
+  }
+  
 
   light.begin();
   gain = 0;
@@ -121,15 +132,13 @@ void loop() {
     // Perform lux calculation: (returns: 1 - if successfull, 0 - if infrared/visible light sensor was saturated
     good = light.getLux(gain,ms,data0,data1,lux);
   }
-
-  /*boolean check_light = true;
-  double lux=-1;    // Resulting lux value
-  boolean good; // To check if lux measure is saturated*/
-// Printing Results
-  printResults( temp_read, hum_read, check_light, lux, good);
   
+//Prints results
+  printResults( temp_read, hum_read, check_light, lux, good); 
   delay(200);
 
+
+/*************************Connection***********************/
   //Opens TCP session with server
   while(!wifi.createTCP("web.ist.utl.pt", 80)){
     delay(200);
@@ -139,30 +148,38 @@ void loop() {
   Serial.println("Connected to server.");
 
   //sets GET request
-  String data = String("temperature=")+(int)temp_read+"&light="+(int)lux+"&moisture="+(int)hum_read;
+  String data = String("temperature=")+(int)temp_read+"&light="+(int)lux+"&moisture="+(int)hum_read+"&idArduino="+mac;
   const char data_c[data.length()];
   data.toCharArray(data_c, data.length());
-  String get_message = "GET /ist178799/server2.php?"+data+" HTTP/1.1\r\n" + "Host: web.ist.utl.pt\r\n" + "\r\n";
-  /*const char get_message_c[get_message.length()]; // +1 for each \r or \n
-  get_message.toCharArray(get_message_c, sizeof(get_message_c));
-  delay(200);*/
+  String get_message = "GET /ist1"+String(user)+"/RMSF/server.php?"+data+" HTTP/1.1\r\n" + "Host: web.ist.utl.pt\r\n" + "\r\n";
   
-  
-  /*if(!wifi.send(get_message_c, sizeof(get_message_c))){
-    delay(200);
-    Serial.println("-------------Bad Request----------");
-  }*/
   //TODO checks se a data foi bem enviada
-  delay(500); //TODO can't close TCP connection
+  delay(500);
   //Sends GET request to server
   sendData("AT+CIPSEND="+String(get_message.length())+"\r\n", 2000, DEBUG, 100);
   sendData(get_message, 5000, DEBUG, 5000);
+
+  delay(500);
+
+  //Response of server (configuration of user)
+  int wait_time = 20000; //5 minutes
+  //Waits for response during wait_time
+  int value = recvDigit(wait_time, 1000, "\"config\":");
+  Serial.println(value);
+  switch(value){
+    case -1:
+    Serial.println("Did not receive value from server"); break;
+    case 0:
+    Serial.println("Configuration stays the same"); break;
+    default:
+    Serial.println("Configuration changed!"); break;
+  }
+
   //Closes TCP session
   sendData("AT+CIPCLOSE\r\n", 5000, DEBUG, 100);
-  delay(500);
   Serial.println("\nConnection released");
-  //TODO data na base de dados está no formato só até as 12 horas
-  delay(300000); //Delays for 5 minutes
+
+  delay(100000);
 }
 
 void printLightError(byte error){
@@ -203,7 +220,7 @@ void printResults(float temp_read, int hum_read, boolean check_light, double lux
 }
 
 
-String sendData(String command, const int timeout, boolean debug, const int interval)
+boolean sendData(String command, const int timeout, boolean debug, const int interval)
 {
   // Envio dos comandos AT para o modulo
   String response = "";
@@ -212,6 +229,9 @@ String sendData(String command, const int timeout, boolean debug, const int inte
   long int time = millis();
   while ( (time + timeout) > millis())
   {
+    /*int aval= mySerial.available();
+    Serial.print("Available = ");
+    Serial.println(aval);*/
     while (mySerial.available())
     {
       // The esp has data so display its output to the serial window
@@ -223,6 +243,55 @@ String sendData(String command, const int timeout, boolean debug, const int inte
   {
     Serial.print(response);
   }
-  return response;
+  return (response.indexOf("OK") > 0);
 }
 
+boolean checkACK(){
+  return Serial.find("OK");
+}
+
+int recvDigit(const int timeout, const int interval, char key[])
+{
+  String response = "";
+  boolean received = false;
+  int value=-1;
+  long int time = millis();
+  while ( (time + timeout) > millis() && !received)
+  {
+    while (mySerial.available())
+    {
+      Serial.println("Entrou");
+      delay(100);    
+      // The esp has data so display its output to the serial window
+      char c = mySerial.read(); // read the next character.
+      response += c;
+     /*
+      if(mySerial.find("+IPD,")){
+        // Delay to wait for the buffer to fill up
+        delay(interval);
+        mySerial.find(key);
+        value = mySerial.read()-48; // read the digit associated with key, -48 to pass from ASCII code to digit value
+        received = true;
+        Serial.println("Entrou!");
+      }*/
+    }
+    Serial.print(response);
+  }
+  return value;
+}
+
+int find_text(String needle, String haystack) {
+  int foundpos = -1;
+  for (int i = 0; i <= haystack.length() - needle.length(); i++) {
+    if (haystack.substring(i,needle.length()+i) == needle) {
+      foundpos = i;
+    }
+  }
+  return foundpos;
+}
+
+/*
+void concatToChar(char *line, String s, int size){
+  char line[size];
+  s.toCharArray(line, size);
+}*/
