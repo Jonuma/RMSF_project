@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">MyGardener</string>
+    <string name="name">MyGardener</string>
+    <string name="description">desc</string>
+    <string name="hint_email">E-mail</string>
+    <string name="hint_pass">Password</string>
+    <string name="loginBtn">LogIn</string>
+    <string name="signup_link">No account yet? Sign up here.</string>
+    <string name="idArdu">Arduino ID</string>
+    <string name="define_pass">Create Password</string>
+    <string name="confirm_pass">Confirm Password</string>
+    <string name="login_link">Already have an account? Login.</string>
+    <string name="register">Signup</string>
+    <string name="refreshBtn">Refresh</string>
+    <string name="configBtn">Apply</string>
+    <string name="logoutBtn">Logout</string>
+
+    <string-array name="configs">
+        <item>Dry</item>
+        <item>Normal</item>
+        <item>Moist</item>
+    </string-array>
+
+</resources>

@@ -24,8 +24,10 @@ void setup()
   delay(200);
   String command = "AT+CWJAP=\""+String(SSID)+"\",\""+String(PASSWORD)+"\"\r\n";
   sendData(command, 2000, DEBUG);
+
   delay(1000);
   sendData("AT+CIPCLOSE\r\n", 2000, DEBUG);
+
   Serial.println("** Final **");
   String test = "Isto\r\neum\r\nteste";
   Serial.println(sizeof("e\n"));
