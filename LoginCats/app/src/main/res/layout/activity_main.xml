@@ -22,24 +22,37 @@
             android:layout_height="320dp">
         </com.github.mikephil.charting.charts.LineChart>
 
-        <!-- ComboBox -->
+        <!-- Refresh chart Button-->
+        <Button
+            android:id="@+id/refreshBtn"
+            android:text="@string/refreshBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
+        <!-- ComboBox -->
         <Spinner
             android:id="@+id/spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:layout_gravity="left"
-            android:spinnerMode="dropdown"
+            android:layout_weight="1"
             android:dropDownWidth="wrap_content" />
 
+        <!-- Apply Configurations Button -->
         <Button
             android:id="@+id/configBtn"
             android:text="@string/configBtn"
-            android:layout_width="82dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            style="@android:style/Widget.Button.Small" />
+            android:layout_gravity="right" />
+
+        <!-- Logout chart Button-->
+        <Button
+            android:id="@+id/logoutBtn"
+            android:text="@string/logoutBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
 
     </LinearLayout>

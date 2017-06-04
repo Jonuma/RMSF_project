@@ -19,15 +19,11 @@
 				exit();
 			}
 				
-			// array for JSON response
 			$response = array();
 			$minutes = array();
 			$temperature = array();
 			$light = array();
 			$moisture = array();
-						
-			//$result = $connection->prepare("Select temperature from measurements");
-			//$temperature = $result->execute();
 			
 			$sql = "select minutes from measurements";
 			$min = $connection->query($sql);
@@ -83,15 +79,12 @@
 				}
 			}
 			
+			//Envio das medidas contidas na base de dados para que a App os apresente graficamente ao utilizador
 			$response['minutes'] = $minutes;
 			$response['temperature'] = $temperature;
 			$response['light'] = $light;
 			$response['moisture'] = $moisture;
-			
-		//	echo json_encode($minutes);
-		//	echo json_encode($temperature);
-		//	echo json_encode($light);
-		//	echo json_encode($moisture);
+		
 			echo json_encode($response);
 
 			$connection=null;

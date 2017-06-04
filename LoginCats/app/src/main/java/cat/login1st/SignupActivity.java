@@ -26,7 +26,7 @@ public class SignupActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
-    EditText usr;
+    EditText idArduino;
     EditText email;
     EditText passDefine;
     EditText passConfirm;
@@ -40,7 +40,7 @@ public class SignupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        usr = (EditText) findViewById(R.id.person_name);
+        idArduino = (EditText) findViewById(R.id.idArduino);
         email = (EditText) findViewById(R.id.email_register);
         passDefine = (EditText) findViewById(R.id.pass_define);
         passConfirm = (EditText) findViewById(R.id.pass_confirm);
@@ -52,52 +52,56 @@ public class SignupActivity extends AppCompatActivity {
             /** Called when the user clicks the Login button */
             @Override
             public void onClick(View view) {
-                String user = usr.getText().toString();
+                String idArd = idArduino.getText().toString();
                 String mail = email.getText().toString();
                 String passSet = passDefine.getText().toString();
                 String passConf = passConfirm.getText().toString();
 
-                if (  ( !user.equals("")) && ( !mail.equals("")) && ( !passSet.equals("")) && ( !passConf.equals("")) ) {
+                if (  ( !idArd.equals("")) && ( !mail.equals("")) && ( !passSet.equals("")) && ( !passConf.equals("")) ) {
 
-                    if ( passSet.length() < 5 ) {
-                        Toast.makeText(getApplicationContext(),
-                                "Password needs at least 5 characters!", Toast.LENGTH_SHORT).show();
-                    } else if ( !passSet.equals(passConf)) {
-                        Toast.makeText(getApplicationContext(),
-                                "Passwords need to match!", Toast.LENGTH_SHORT).show();
-                    }
-
-                    if ( isValidEmail(mail) == true ){
+                    if ( (isValidID(idArd) == true) && (isValidEmail(mail) == true) && (passSet.length() > 5) &&
+                            (passSet.equals(passConf) == true) ){
 
                         URL url;
 
                         try {
-                            url = new URL("http://web.tecnico.ulisboa.pt/ist178094/RMSF/signUp.php?email=" + mail +
-                                    "&pass=" + passSet);
+                            url = new URL("http://web.tecnico.ulisboa.pt/ist178094/RMSF/signUp.php?idArduino=" + idArd +
+                                    "&email=" + mail + "&pass=" + passSet);
                             new signupCheck().execute(url);
                         } catch (MalformedURLException e) {
                             e.printStackTrace();
                         }
 
+                    } else {
+
+                        if (isValidID(idArd) == false) {
+                            Toast.makeText(getApplicationContext(),
+                                    "Enter a valid ID!", Toast.LENGTH_SHORT).show();
+                        }
+
+                        if (isValidEmail(mail) == false) {
+                            Toast.makeText(getApplicationContext(),
+                                    "Enter a valid email address!", Toast.LENGTH_SHORT).show();
+                        }
+
+                        if ( passSet.length() < 5 ) {
+                            Toast.makeText(getApplicationContext(),
+                                    "Password needs at least 5 characters!", Toast.LENGTH_SHORT).show();
+                        } else if ( !passSet.equals(passConf)) {
+                            Toast.makeText(getApplicationContext(),
+                                    "Passwords need to match!", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                    else
-                    {
-                        Toast.makeText(getApplicationContext(),
-                                "Enter a valid email address!", Toast.LENGTH_SHORT).show();
-                    }
+
                 } else {
                     Toast.makeText(getApplicationContext(),
                             "One or more fields are empty!", Toast.LENGTH_SHORT).show();
                 }
-            }
-            // login();
-
-
-        });
+            }        });
 
         loginLink.setOnClickListener(new View.OnClickListener() {
 
-            /** Called when the user clicks the Signup button */
+            /** Called when the user clicks the Login link */
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
@@ -151,10 +155,6 @@ public class SignupActivity extends AppCompatActivity {
             return null;
         }
 
-       /* @Override
-        protected void onProgressUpdate(Integer... progress) {
-            setProgressPercent(progress[0]);
-        } */
 
         @Override
         protected void onPostExecute(String result){
@@ -163,7 +163,7 @@ public class SignupActivity extends AppCompatActivity {
 
             if(res == 0){
                 Toast.makeText(getApplicationContext(),
-                        "Sign up failed. Try again!", Toast.LENGTH_SHORT).show();
+                        "This email address is already registered!", Toast.LENGTH_SHORT).show();
             }else{
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 intent.putExtra("mail", email.getText().toString());
@@ -176,5 +176,9 @@ public class SignupActivity extends AppCompatActivity {
 
     public final static boolean isValidEmail(CharSequence target) {
         return Patterns.EMAIL_ADDRESS.matcher(target).matches();
+    }
+
+    public final static boolean isValidID(String id) {
+        return id.matches("(\\w{2}):(\\w{2}):(\\w{2}):(\\w{2}):(\\w{2}):(\\w{2})");
     }
 }

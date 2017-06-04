@@ -10,30 +10,23 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Description;
-import com.github.mikephil.charting.components.MarkerView;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
 
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -42,15 +35,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static cat.login1st.R.id.text;
-
 
 public class MainActivity extends AppCompatActivity {
 
     int intConfig = 0;
-    Intent intent = getIntent();
     String email;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +49,15 @@ public class MainActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
+        Intent intent = getIntent();
         if (intent != null) {
             email = intent.getStringExtra("mail");
         }
+
+        final Spinner config = (Spinner) findViewById(R.id.spinner);
+        Button configBtn = (Button) findViewById(R.id.configBtn);
+        Button refreshBtn = (Button) findViewById(R.id.refreshBtn);
+        Button logoutBtn = (Button) findViewById(R.id.logoutBtn);
 
         URL url;
 
@@ -73,25 +68,42 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        final Spinner config = (Spinner) findViewById(R.id.spinner);
-        Button configBtn = (Button) findViewById(R.id.configBtn);
+        refreshBtn.setOnClickListener(new View.OnClickListener() {
+
+            /**
+             * Called when the user clicks the Refresh button
+             */
+            @Override
+            public void onClick(View view) {
+                URL url;
+
+                try {
+                    url = new URL("http://web.tecnico.ulisboa.pt/ist178094/RMSF/getData.php");
+                    new getData().execute(url);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.configs, android.R.layout.simple_spinner_item);
-// Specify the layout to use when the list of choices appears
-       // adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-// Apply the adapter to the spinner
+        // Apply the adapter to the spinner
         config.setAdapter(adapter);
 
         configBtn.setOnClickListener(new View.OnClickListener() {
 
             /**
-             * Called when the user clicks the Signup button
+             * Called when the user clicks the Apply button
              */
             @Override
             public void onClick(View view) {
                 String itemConfig = config.getSelectedItem().toString();
-                URL url;
+                URL urlC;
+                HttpURLConnection urlConnection = null;
+
 
                 if(itemConfig.equals("Dry")){
                     intConfig = 1;
@@ -104,16 +116,55 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 try {
-                    url = new URL("http://web.tecnico.ulisboa.pt/ist178094/RMSF/config.php?email="
-                            + email + "&config=" + intConfig);
+                    urlC = new URL("http://web.tecnico.ulisboa.pt/ist178094/RMSF/configFromApp.php?email="
+                            + email + "&configInt=" + intConfig);
+                    new configSend().execute(urlC);
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
-
             }
 
         });
 
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+
+            /**
+             * Called when the user clicks the Logout button
+             */
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+
+    }
+
+
+
+    public class configSend extends AsyncTask<URL, Integer, String> {
+
+        @Override
+        protected String doInBackground(URL... url) {
+            HttpURLConnection urlConnect = null;
+
+            try {
+                urlConnect = (HttpURLConnection) url[0].openConnection();
+                urlConnect.setRequestMethod("GET");
+                urlConnect.connect();
+                InputStream in = urlConnect.getInputStream();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (urlConnect != null) {
+                    urlConnect.disconnect();
+                }
+            }
+            return null;
+        }
     }
 
     public class getData extends AsyncTask<URL, Integer, String[]> {
@@ -127,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 urlConnection = (HttpURLConnection) url[0].openConnection();
                 urlConnection.connect();
+
                 InputStream in = urlConnection.getInputStream();
                 InputStreamReader isr = new InputStreamReader(in);
                 BufferedReader br = new BufferedReader(isr);
@@ -174,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
             LineChart lineChart = (LineChart) findViewById(R.id.chart);
             int i = 0;
 
+
             Description description = new Description();
             description.setText("");
             lineChart.setDescription(description);
@@ -184,6 +237,9 @@ public class MainActivity extends AppCompatActivity {
             // enable touch gestures
             lineChart.setTouchEnabled(true);
 
+            // keep zoom if screen rotated
+            lineChart.setKeepPositionOnRotation(true);
+
             lineChart.setDragDecelerationFrictionCoef(0.9f);
 
             // enable scaling and dragging
@@ -192,9 +248,6 @@ public class MainActivity extends AppCompatActivity {
             lineChart.setDrawGridBackground(false);
             lineChart.setHighlightPerDragEnabled(true);
             lineChart.setBackgroundColor(Color.WHITE);
-
-            XAxis xAxis = lineChart.getXAxis();
-            xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
             YAxis leftAxis = lineChart.getAxisLeft();
             leftAxis.setTextColor(Color.BLACK);
@@ -210,33 +263,37 @@ public class MainActivity extends AppCompatActivity {
 
             String[] dataArray = result;
 
-            String[] minutes = dataArray[0].split(",");
+            String[] date = dataArray[0].split(",");
+            long[] timestamp = new long[300],  Xnew = new long[300];
+            long Xold = 00L;
+
+            for(int j = 0; j < date.length; j++) {
+                timestamp[j] = Util.convertStringToTimestamp(date[j]);
+                Xold = timestamp[j];
+                Xnew[j] = Xold - timestamp[0];
+            }
+
             String[] temps = dataArray[1].split(",");
             String[] light = dataArray[2].split(",");
             String[] moist = dataArray[3].split(",");
 
-            //ArrayList<String> xTime = new ArrayList<>();
             List<Entry> yTemp = new ArrayList<Entry>();
             List<Entry> yLight = new ArrayList<Entry>();
             List<Entry> yMoist = new ArrayList<Entry>();
 
-            /*for (String min : minutes) {
-                xTime.add(new Entry(temps.getValueX(), data.getValueY()));
-            }*/
-
             /* Converting data to entries */
             for (String t : temps) {
-                yTemp.add(new Entry(i++, Float.parseFloat(t)));
+                yTemp.add(new Entry(Xnew[i++], Float.parseFloat(t)));
             }
             i = 0;
 
             for (String l : light) {
-                yLight.add(new Entry(i++, Float.parseFloat(l)));
+               yLight.add(new Entry(Xnew[i++], Float.parseFloat(l)));
             }
             i = 0;
 
             for (String m : moist) {
-                yMoist.add(new Entry(i++, Float.parseFloat(m)));
+                yMoist.add(new Entry(Xnew[i++], Float.parseFloat(m)));
             }
 
             /* Multiple data sets to multiple y axes */
@@ -260,12 +317,16 @@ public class MainActivity extends AppCompatActivity {
 
             lineChart.setData(new LineData(lineDataSets));
 
+            XAxis xAxis = lineChart.getXAxis();
+            xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
+            IAxisValueFormatter xAxisFormatter = new HourAxisValueFormatter(timestamp[0]);
+            xAxis.setValueFormatter(xAxisFormatter);
 
-            //lineChart.setVisibleXRangeMaximum(65f);
+            //lineChart.moveViewTo(i, i, YAxis.AxisDependency.RIGHT);
+
 
         }
     }
-
 
 }

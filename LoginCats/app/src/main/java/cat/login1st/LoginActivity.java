@@ -1,4 +1,5 @@
 package cat.login1st;
+
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -55,12 +56,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 if ((!user.equals("")) && (!password.equals(""))) {
 
-                    if (password.length() < 5) {
-                        Toast.makeText(getApplicationContext(),
-                                "Password needs at least 5 characters!", Toast.LENGTH_SHORT).show();
-                    }
-
-                    if (isValidEmail(user) == true) {
+                    if (isValidEmail(user) == true && password.length() > 5) {
 
                         URL url;
 
@@ -73,8 +69,15 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
                     } else {
-                        Toast.makeText(getApplicationContext(),
-                                "Enter a valid email address!", Toast.LENGTH_SHORT).show();
+                        if (isValidEmail(user) == false ) {
+                            Toast.makeText(getApplicationContext(),
+                                    "Enter a valid email address!", Toast.LENGTH_SHORT).show();
+                        }
+
+                        if (password.length() < 5) {
+                            Toast.makeText(getApplicationContext(),
+                                    "Password needs at least 5 characters!", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } else {
                     Toast.makeText(getApplicationContext(),
@@ -87,7 +90,7 @@ public class LoginActivity extends AppCompatActivity {
         signupLink.setOnClickListener(new View.OnClickListener() {
 
             /**
-             * Called when the user clicks the Signup button
+             * Called when the user clicks the Signup link
              */
             @Override
             public void onClick(View view) {
@@ -142,10 +145,6 @@ public class LoginActivity extends AppCompatActivity {
         return null;
         }
 
-       /* @Override
-        protected void onProgressUpdate(Integer... progress) {
-            setProgressPercent(progress[0]);
-        } */
 
         @Override
         protected void onPostExecute(String result){
