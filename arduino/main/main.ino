@@ -47,7 +47,7 @@ unsigned int ms;  // Integration ("shutter") time in milliseconds
 
 void setup() {
   // Comunicates with pc and WIFi module at 9600 bit/s
-  Serial.begin(115200);
+  Serial.begin(9600);
   mySerial.begin(9600);
   //waits one second after power up
   while(millis() < 1000);
@@ -157,9 +157,35 @@ void loop() {
   delay(500);
   //Sends GET request to server
   sendData("AT+CIPSEND="+String(get_message.length())+"\r\n", 2000, DEBUG, 100);
-  sendData(get_message, 5000, DEBUG, 5000);
+  //sendData(get_message, 5000, DEBUG, 5000);
 
-  delay(500);
+  /******* A MAO***************==============================================*****/
+  //String response = "";
+  mySerial.print(get_message);
+  int timeout = 5000;
+  long int time = millis();
+  int i=0;
+  while ( (time + timeout) > millis())
+  {
+    if (mySerial.available())
+      {
+        // The esp has data so display its output to the serial window
+        char c = mySerial.read(); // read the next character.
+//        response += c;
+        Serial.print(c);
+        i++;
+     }
+       
+  }
+   /*Serial.print("Response = ");
+   Serial.println(response.length());
+   Serial.println("");
+   Serial.print(response);*/
+   Serial.println("\n==\n");
+
+
+
+  delay(5000);
 
   //Response of server (configuration of user)
   int wait_time = 20000; //5 minutes
@@ -223,9 +249,10 @@ void printResults(float temp_read, int hum_read, boolean check_light, double lux
 boolean sendData(String command, const int timeout, boolean debug, const int interval)
 {
   // Envio dos comandos AT para o modulo
+  int dif = 0;
   String response = "";
   mySerial.print(command);
-  delay(interval);
+  //delay(interval);
   long int time = millis();
   while ( (time + timeout) > millis())
   {
@@ -237,6 +264,10 @@ boolean sendData(String command, const int timeout, boolean debug, const int int
       // The esp has data so display its output to the serial window
       char c = mySerial.read(); // read the next character.
       response += c;
+      /*if((response.length()-dif) > 30){
+        delay(1000);
+        dif += 30;
+      }*/
     }
   }
   if (debug)
@@ -244,6 +275,45 @@ boolean sendData(String command, const int timeout, boolean debug, const int int
     Serial.print(response);
   }
   return (response.indexOf("OK") > 0);
+}
+
+boolean sendDataX(String command, const int timeout, boolean debug, const int interval)
+{
+  // Envio dos comandos AT para o modulo
+  int readCount = 0;
+  char response[1024] = {0};
+  mySerial.print(command);
+  //delay(interval);
+  long int time = millis();
+  while ( (time + timeout) > millis())
+  {
+    /*int aval= mySerial.available();
+    Serial.print("Available = ");
+    Serial.println(aval);*/
+    while (mySerial.available())
+    {
+      // The esp has data so display its output to the serial window
+      readCount += mySerial.readBytes(response, mySerial.available()); // read the next character.
+      //response += c;
+      /*if((response.length()-dif) > 30){
+        delay(1000);
+        dif += 30;
+      }*/
+    }
+  }
+  if (debug)
+  {
+    Serial.print("Response = ");
+    Serial.println(readCount);
+    Serial.print(response);
+    /*for(int i=0; i < response.length(); i++){
+      Serial.print(i);
+      Serial.print(" -> ");
+      Serial.print(response.charAt(i));
+      Serial.print(" ");
+    }*/
+  }
+  return true;//(response.indexOf("OK") > 0);
 }
 
 boolean checkACK(){
@@ -260,8 +330,8 @@ int recvDigit(const int timeout, const int interval, char key[])
   {
     while (mySerial.available())
     {
-      Serial.println("Entrou");
-      delay(100);    
+      /*Serial.println("Entrou");
+      delay(100);*/    
       // The esp has data so display its output to the serial window
       char c = mySerial.read(); // read the next character.
       response += c;
@@ -275,8 +345,10 @@ int recvDigit(const int timeout, const int interval, char key[])
         Serial.println("Entrou!");
       }*/
     }
-    Serial.print(response);
+    
   }
+  Serial.print(response);
+  
   return value;
 }
 
