@@ -18,8 +18,10 @@
 /* WiFi macros*/
 #define SSID        "falafel_p9"
 #define PASSWORD    "test12345"
+#define CHUNCK 48
 /*Base de dados*/
-#define user "78094"
+#define USER "78094"
+#define PATH "/RMSF/arduinoData.php"
 //inputs
 #define CH_PD 4
 #define RST 5
@@ -35,7 +37,7 @@ Uno, Redboard, Pro    A4     A5
 SoftwareSerial mySerial(3, 2); /* RX:D3, TX:D2 */
 //WiFi object
 ESP8266 wifi(mySerial, 9600);
-String mac = "";
+char mac[20]={0};
 //LightSensor object
 SFE_TSL2561 light;
 //Temperature object
@@ -85,8 +87,11 @@ void setup() {
   //Gets MAC of esp8266
   
   int idx = find_text("MAC,", ip_mac);
-  for(int i = idx+5 ; i < idx+22 ; i++){
-    mac += ip_mac.charAt(i); 
+  int k=0;
+  for( int i = idx+5 ; i < idx+22 ; i++){
+    //mac += ip_mac.charAt(i);
+    mac[k] = ip_mac.charAt(i);
+    k++;
   }
   
 
@@ -148,20 +153,26 @@ void loop() {
   Serial.println("Connected to server.");
 
   //sets GET request
-  String data = String("temperature=")+(int)temp_read+"&light="+(int)lux+"&moisture="+(int)hum_read+"&idArduino="+mac;
+ /* String data = String("temperature=")+(int)temp_read+"&light="+(int)lux+"&moisture="+(int)hum_read+"&idArduino="+mac;
   const char data_c[data.length()];
   data.toCharArray(data_c, data.length());
-  String get_message = "GET /ist1"+String(user)+"/RMSF/server.php?"+data+" HTTP/1.1\r\n" + "Host: web.ist.utl.pt\r\n" + "\r\n";
-  
+  String get_message = "GET /ist1"+String(USER)+String(PATH)+"?"+data+" HTTP/1.1\r\n" + "Host: web.ist.utl.pt\r\n" + "\r\n";*/
+
+  //sets GET request
+  char data[100];
+  sprintf(data, "temperature=%d&light=%d&moisture=%d&idArduino=%s", (int)temp_read, (int)lux, (int)hum_read, mac);
+  char get_message[100];
+  sprintf(get_message, "GET /ist1%s%s?%s HTTP/1.1\r\nHost: web.ist.utl.pt\r\n\r\n", USER, PATH, data);
+  Serial.print(get_message);
+
   //TODO checks se a data foi bem enviada
   delay(500);
   //Sends GET request to server
-  sendData("AT+CIPSEND="+String(get_message.length())+"\r\n", 2000, DEBUG, 100);
-  //sendData(get_message, 5000, DEBUG, 5000);
+  sendData("AT+CIPSEND="+String(strlen(get_message))+"\r\n", 2000, DEBUG, 100, false);
+  sendData(get_message, 5000, DEBUG, 5000, true);
 
   /******* A MAO***************==============================================*****/
-  //String response = "";
-  mySerial.print(get_message);
+  /*mySerial.print(get_message);
   int timeout = 5000;
   long int time = millis();
   int i=0;
@@ -176,7 +187,7 @@ void loop() {
         i++;
      }
        
-  }
+  }*/
    /*Serial.print("Response = ");
    Serial.println(response.length());
    Serial.println("");
@@ -190,7 +201,7 @@ void loop() {
   //Response of server (configuration of user)
   int wait_time = 20000; //5 minutes
   //Waits for response during wait_time
-  int value = recvDigit(wait_time, 1000, "\"config\":");
+  int value = recvDigit(wait_time, 1000, "\"confitg\":");
   Serial.println(value);
   switch(value){
     case -1:
@@ -202,7 +213,7 @@ void loop() {
   }
 
   //Closes TCP session
-  sendData("AT+CIPCLOSE\r\n", 5000, DEBUG, 100);
+  sendData("AT+CIPCLOSE\r\n", 5000, DEBUG, 100, false);
   Serial.println("\nConnection released");
 
   delay(100000);
@@ -246,13 +257,15 @@ void printResults(float temp_read, int hum_read, boolean check_light, double lux
 }
 
 
-boolean sendData(String command, const int timeout, boolean debug, const int interval)
+boolean sendData(String command, const int timeout, boolean debug, const int interval, boolean sim)
 {
   // Envio dos comandos AT para o modulo
-  int dif = 0;
-  String response = "";
+  char response[CHUNCK+1]={0};  
+  int i = 0;
+  char c = 'n';
+  int value = -1;
   mySerial.print(command);
-  //delay(interval);
+  int readCount;
   long int time = millis();
   while ( (time + timeout) > millis())
   {
@@ -261,20 +274,50 @@ boolean sendData(String command, const int timeout, boolean debug, const int int
     Serial.println(aval);*/
     while (mySerial.available())
     {
-      // The esp has data so display its output to the serial window
-      char c = mySerial.read(); // read the next character.
-      response += c;
-      /*if((response.length()-dif) > 30){
-        delay(1000);
-        dif += 30;
+      if(!sim){
+        int aval = mySerial.available();
+        if(mySerial.available() > CHUNCK){
+           i = CHUNCK;
+           readCount += mySerial.readBytes(response, CHUNCK);
+        }else{
+           i = aval;
+           readCount += mySerial.readBytes(response, aval);
+        };
+        //Prints esp8266 response
+        if (debug)
+        {
+          Serial.print(response);
+        }
+        for( int k = 0; k < CHUNCK+1 ; k++){
+          response[k]='\0';
+        }
+      }else{
+        if(mySerial.find("\"config\":\"")){
+          Serial.print("Entrou");
+          delay(500);//waits for buffer to fill up
+          c = mySerial.read(); // read the digit associated with key
+          value = c - 48; // -48 to pass from ASCII code to digit value
+        }
+        //received = true;
+      }
+      /*if(strstr(response, "html")){
+        // Delay to wait for the buffer to fill up
+        delay(500);
+        mySerial.find("\"config\":");
+        value = mySerial.read()-48; // read the digit associated with key, -48 to pass from ASCII code to digit value
+        //received = true;
       }*/
+      
     }
   }
-  if (debug)
-  {
-    Serial.print(response);
+  if(sim){
+    Serial.print("Value = ");
+    Serial.print(value);
+    Serial.print("; c = ");
+    Serial.print(c);
+    
   }
-  return (response.indexOf("OK") > 0);
+  return true;//(response.indexOf("OK") > 0);
 }
 
 boolean sendDataX(String command, const int timeout, boolean debug, const int interval)
