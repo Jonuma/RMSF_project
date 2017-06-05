@@ -25,8 +25,8 @@
 			$minutes = date("Y-m-d H:i:s"); 
 			$temperature = $_GET['temperature'];
 			$light = $_GET['light'];
-			$moisture = $_GET['moisture'];
-			
+			$moisture = $_GET['moisture'];		
+
 			//Insercao na tabela das medidas da base de dados
 			$sql = "INSERT INTO measurements VALUES ('$idArduino', '$minutes', '$temperature', '$light', '$moisture')";
 			$result = $connection->exec($sql);

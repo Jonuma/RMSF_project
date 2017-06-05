@@ -35,17 +35,6 @@
 			$result = $connection->exec($sql);
 			
 			$response['config']=0;
-			
-			
-			
-		/*	Nao esta a funcionar com a prevencao de SQL injection 
-		
-			$stmt = $connection->prepare("INSERT INTO measurements VALUES (current timestamp, :temperature, :light, :moisture);");
-			$stmt->bindParam(':temperature', $temperature);
-			$stmt->bindParam(':light', $light);
-			$stmt->bindParam(':moisture', $moisture);			
-			$stmt->execute();
-		*/
 		
 			echo json_encode($response);
 
