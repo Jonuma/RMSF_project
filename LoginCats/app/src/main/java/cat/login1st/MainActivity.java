@@ -281,19 +281,23 @@ public class MainActivity extends AppCompatActivity {
             List<Entry> yLight = new ArrayList<Entry>();
             List<Entry> yMoist = new ArrayList<Entry>();
 
+
             /* Converting data to entries */
             for (String t : temps) {
-                yTemp.add(new Entry(Xnew[i++], Float.parseFloat(t)));
+                if(t != "")
+                    yTemp.add(new Entry(Xnew[i++], Float.parseFloat(t)));
             }
             i = 0;
 
             for (String l : light) {
-               yLight.add(new Entry(Xnew[i++], Float.parseFloat(l)));
+                if(l != "")
+                    yLight.add(new Entry(Xnew[i++], Float.parseFloat(l)));
             }
             i = 0;
 
             for (String m : moist) {
-                yMoist.add(new Entry(Xnew[i++], Float.parseFloat(m)));
+                if(m != "")
+                    yMoist.add(new Entry(Xnew[i++], Float.parseFloat(m)));
             }
 
             /* Multiple data sets to multiple y axes */

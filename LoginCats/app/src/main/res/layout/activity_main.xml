@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:fitsSystemWindows="true" >
+    android:fitsSystemWindows="true"
+    android:id="@+id/spinnertext">
 
     <LinearLayout
         android:orientation="vertical"
@@ -30,6 +31,14 @@
             android:layout_height="wrap_content" />
 
         <!-- ComboBox -->
+
+        <TextView
+            android:text="Tipo de Terreno pretendido:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#c857a133"
+            android:id="@+id/textView" />
+
         <Spinner
             android:id="@+id/spinner"
             android:layout_width="wrap_content"
@@ -40,6 +49,7 @@
             android:dropDownWidth="wrap_content" />
 
         <!-- Apply Configurations Button -->
+
         <Button
             android:id="@+id/configBtn"
             android:text="@string/configBtn"
