@@ -226,109 +226,119 @@ public class MainActivity extends AppCompatActivity {
             LineChart lineChart = (LineChart) findViewById(R.id.chart);
             int i = 0;
 
-
-            Description description = new Description();
-            description.setText("");
-            lineChart.setDescription(description);
-
-            // enable value highlighting
-            lineChart.setHighlightPerTapEnabled(true);
-
-            // enable touch gestures
-            lineChart.setTouchEnabled(true);
-
-            // keep zoom if screen rotated
-            lineChart.setKeepPositionOnRotation(true);
-
-            lineChart.setDragDecelerationFrictionCoef(0.9f);
-
-            // enable scaling and dragging
-            lineChart.setDragEnabled(true);
-            lineChart.setScaleEnabled(true);
-            lineChart.setDrawGridBackground(false);
-            lineChart.setHighlightPerDragEnabled(true);
-            lineChart.setBackgroundColor(Color.WHITE);
-
-            YAxis leftAxis = lineChart.getAxisLeft();
-            leftAxis.setTextColor(Color.BLACK);
-            leftAxis.setDrawGridLines(true);
-
-
-            YAxis rightAxis = lineChart.getAxisRight();
-            rightAxis.setDrawAxisLine(false);
-            rightAxis.setTextColor(Color.WHITE);
-            rightAxis.setDrawGridLines(false);
-
-
-
             String[] dataArray = result;
 
-            String[] date = dataArray[0].split(",");
-            long[] timestamp = new long[300],  Xnew = new long[300];
-            long Xold = 00L;
+            if( (!result[0].equals("")) && ((!result[1].equals("")) || (!result[2].equals("")) || (!result[2].equals(""))) ) {
 
-            for(int j = 0; j < date.length; j++) {
-                timestamp[j] = Util.convertStringToTimestamp(date[j]);
-                Xold = timestamp[j];
-                Xnew[j] = Xold - timestamp[0];
+
+                Description description = new Description();
+                description.setText("");
+                lineChart.setDescription(description);
+
+                // enable value highlighting
+                lineChart.setHighlightPerTapEnabled(true);
+
+                // enable touch gestures
+                lineChart.setTouchEnabled(true);
+
+                // keep zoom if screen rotated
+                lineChart.setKeepPositionOnRotation(true);
+
+                lineChart.setDragDecelerationFrictionCoef(0.9f);
+
+                // enable scaling and dragging
+                lineChart.setDragEnabled(true);
+                lineChart.setScaleEnabled(true);
+                lineChart.setDrawGridBackground(false);
+                lineChart.setHighlightPerDragEnabled(true);
+                lineChart.setBackgroundColor(Color.WHITE);
+
+                YAxis leftAxis = lineChart.getAxisLeft();
+                leftAxis.setTextColor(Color.BLACK);
+                leftAxis.setDrawGridLines(true);
+
+
+                YAxis rightAxis = lineChart.getAxisRight();
+                rightAxis.setDrawAxisLine(false);
+                rightAxis.setTextColor(Color.WHITE);
+                rightAxis.setDrawGridLines(false);
+
+
+                String[] date = dataArray[0].split(",");
+                long[] timestamp = new long[300], xNew = new long[300];
+                long xOld = 00L;
+
+                for (int j = 0; j < date.length; j++) {
+                    timestamp[j] = Util.convertStringToTimestamp(date[j]);
+                    xOld = timestamp[j];
+                    xNew[j] = xOld - timestamp[0];
+                }
+
+
+                List<Entry> yTemp = new ArrayList<Entry>();
+                List<Entry> yLight = new ArrayList<Entry>();
+                List<Entry> yMoist = new ArrayList<Entry>();
+
+                /* Multiple data sets for multiple y axes */
+                ArrayList<ILineDataSet> lineDataSets = new ArrayList<>();
+
+
+
+                if( !result[1].equals("") ) {
+                    String[] temps = dataArray[1].split(",");
+
+                /* Converting data to entries of the chart */
+                    for (String t : temps) {
+                        yTemp.add(new Entry(xNew[i++], Float.parseFloat(t)));
+                    }
+                    i = 0;
+
+                    LineDataSet lineDataSet1 = new LineDataSet(yTemp, "Temperature [ºC]");
+                    lineDataSet1.setDrawCircles(true);
+                    lineDataSet1.setColor(Color.RED);
+
+                    lineDataSets.add(lineDataSet1);
+                }
+
+                if( !result[2].equals("") ) {
+                    String[] light = dataArray[2].split(",");
+
+                    for (String l : light) {
+                        yLight.add(new Entry(xNew[i++], Float.parseFloat(l)));
+                    }
+                    i = 0;
+
+                    LineDataSet lineDataSet2 = new LineDataSet(yLight, "Light [lux]");
+                    lineDataSet2.setDrawCircles(true);
+                    lineDataSet2.setColor(Color.YELLOW);
+
+                    lineDataSets.add(lineDataSet2);
+                }
+
+                if( !result[3].equals("") ) {
+                    String[] moist = dataArray[3].split(",");
+
+                    for (String m : moist) {
+                        yMoist.add(new Entry(xNew[i++], Float.parseFloat(m)));
+                    }
+
+                    LineDataSet lineDataSet3 = new LineDataSet(yMoist, "Moisture");
+                    lineDataSet3.setDrawCircles(true);
+                    lineDataSet3.setColor(Color.BLUE);
+
+                    lineDataSets.add(lineDataSet3);
+                }
+
+
+                lineChart.setData(new LineData(lineDataSets));
+
+                XAxis xAxis = lineChart.getXAxis();
+                xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+
+                IAxisValueFormatter xAxisFormatter = new HourAxisValueFormatter(timestamp[0]);
+                xAxis.setValueFormatter(xAxisFormatter);
+
             }
-
-            String[] temps = dataArray[1].split(",");
-            String[] light = dataArray[2].split(",");
-            String[] moist = dataArray[3].split(",");
-
-            List<Entry> yTemp = new ArrayList<Entry>();
-            List<Entry> yLight = new ArrayList<Entry>();
-            List<Entry> yMoist = new ArrayList<Entry>();
-
-
-            /* Converting data to entries */
-            for (String t : temps) {
-                if(t != "")
-                    yTemp.add(new Entry(Xnew[i++], Float.parseFloat(t)));
-            }
-            i = 0;
-
-            for (String l : light) {
-                if(l != "")
-                    yLight.add(new Entry(Xnew[i++], Float.parseFloat(l)));
-            }
-            i = 0;
-
-            for (String m : moist) {
-                if(m != "")
-                    yMoist.add(new Entry(Xnew[i++], Float.parseFloat(m)));
-            }
-
-            /* Multiple data sets to multiple y axes */
-            ArrayList<ILineDataSet> lineDataSets = new ArrayList<>();
-
-            LineDataSet lineDataSet1 = new LineDataSet(yTemp,"Temperature [ºC]");
-            lineDataSet1.setDrawCircles(true);
-            lineDataSet1.setColor(Color.RED);
-
-            LineDataSet lineDataSet2 = new LineDataSet(yLight,"Light [lux]");
-            lineDataSet2.setDrawCircles(true);
-            lineDataSet2.setColor(Color.YELLOW);
-
-            LineDataSet lineDataSet3 = new LineDataSet(yMoist,"Moisture");
-            lineDataSet3.setDrawCircles(true);
-            lineDataSet3.setColor(Color.BLUE);
-
-            lineDataSets.add(lineDataSet1);
-            lineDataSets.add(lineDataSet2);
-            lineDataSets.add(lineDataSet3);
-
-            lineChart.setData(new LineData(lineDataSets));
-
-            XAxis xAxis = lineChart.getXAxis();
-            xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-
-            IAxisValueFormatter xAxisFormatter = new HourAxisValueFormatter(timestamp[0]);
-            xAxis.setValueFormatter(xAxisFormatter);
-
-            //lineChart.moveViewTo(i, i, YAxis.AxisDependency.RIGHT);
-
 
         }
     }

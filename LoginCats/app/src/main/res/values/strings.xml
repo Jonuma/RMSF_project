@@ -14,7 +14,7 @@
     <string name="refreshBtn">Refresh</string>
     <string name="configBtn">Apply</string>
     <string name="logoutBtn">Logout</string>
-    <string name="textView">Terreno</string>
+    <string name="terrain">Tipo de Terreno pretendido:</string>
 
     <string-array name="configs">
         <item>Dry</item>

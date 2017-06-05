@@ -13,11 +13,8 @@ public class Util{
             long timeStampDate;
             DateFormat formatter;
             formatter = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
-            if(str_date != "") {
                 Date date = formatter.parse(str_date);
                 timeStampDate = date.getTime();
-            }else
-                timeStampDate = -1;
 
             return timeStampDate;
         } catch (ParseException e) {
